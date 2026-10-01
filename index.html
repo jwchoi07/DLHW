@@ -7,16 +7,19 @@
     <!-- CSS: Change how the app looks -->
     <style>
         body {
-            font-family: Arial;
+            font-family: Impact, sans-serif;
             text-align: center;
             margin: 50px;
         }
 
         button {
+            font-family: Impact, sans-serif;
             font-size: 20px;
             padding: 12px;
             margin: 5px;
             background-color: pink;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -50,7 +53,7 @@
 
         function checkAnswer(answer) {
 
-            if (answer === "Wish a good luck") {
+            if (answer === "wish a good luck") {
                 document.getElementById("feedback").innerText =
                     "Correct! Well done!";
             }
