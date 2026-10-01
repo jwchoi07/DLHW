@@ -1,39 +1,52 @@
+```html
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>Welcome</title>
 
-    <!-- CSS: Change how the app looks -->
     <style>
         body {
-            font-family: Impact, sans-serif;
+            font-family: Gothic, "Gothic A1", Arial, sans-serif;
             text-align: center;
             margin: 50px;
         }
 
         button {
-            font-family: Impact, sans-serif;
+            font-family: Gothic, "Gothic A1", Arial, sans-serif;
             font-size: 20px;
-            padding: 12px;
+            padding: 12px 20px;
             margin: 5px;
             background-color: pink;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
+
+            /* 클릭 애니메이션 */
+            transition: transform 0.1s ease, background-color 0.1s ease;
+        }
+
+        /* 마우스를 올렸을 때 */
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        /* 버튼을 클릭하는 순간 */
+        button:active {
+            transform: scale(0.92);
+            background-color: #ff8fab;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- HTML: Change what learners see -->
-
     <h1>Vocabulary Quiz</h1>
 
     <p>What does "break a leg" mean?</p>
 
-    <button onclick="checkAnswer('wish a good luck')">
-        Wish a good luck
+    <button onclick="checkAnswer('good luck')">
+        Good luck
     </button>
 
     <button onclick="checkAnswer('avoid')">
@@ -47,20 +60,18 @@
     <h3 id="feedback"></h3>
 
 
-    <!-- JavaScript: Change what happens -->
-
     <script>
 
         function checkAnswer(answer) {
 
-            if (answer === "wish a good luck") {
+            if (answer === "good luck") {
                 document.getElementById("feedback").innerText =
-                    "Correct! Well done!";
+                    "정답! 잘 하셨습니다!";
             }
 
             else {
                 document.getElementById("feedback").innerText =
-                    "Incorrect. The answer is Wish a good luck.";
+                    "Incorrect. The answer is Good luck.";
             }
 
         }
@@ -69,3 +80,4 @@
 
 </body>
 </html>
+```
