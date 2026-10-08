@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Voice Generator</title>
+<style>
+*{box-sizing:border-box}
+
+:root{
+  --pink:#ff4e6b;
+  --red:#ff0436;
+  --bg:#202124;
+  --panel:rgba(255,255,255,.075);
+  --border:rgba(255,255,255,.13);
+  --text:#f5f5f7;
+  --muted:#a9abb2;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,78,107,.11),transparent 38%),
+    var(--bg);
+}
+
+.app{
+  width:min(820px,100%);
+  padding:34px;
+  border:1px solid var(--border);
+  border-radius:30px;
+  background:var(--panel);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  box-shadow:0 24px 70px rgba(0,0,0,.35);
+}
+
+.header{
+  text-align:center;
+  margin-bottom:26px;
+}
+
+.header h1{
+  margin:0 0 8px;
+  font-size:clamp(28px,5vw,40px);
+  letter-spacing:-1px;
+}
+
+.header p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+textarea{
+  display:block;
+  width:100%;
+  min-height:260px;
+  resize:vertical;
+  padding:22px;
+  border:1px solid var(--border);
+  border-radius:22px;
+  outline:none;
+  color:var(--text);
+  background:rgba(0,0,0,.20);
+  font:18px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  transition:.2s;
+}
+
+textarea:focus{
+  border-color:rgba(255,78,107,.7);
+  box-shadow:0 0 0 4px rgba(255,78,107,.1);
+}
+
+textarea::placeholder{color:#777a82}
+
+.counter{
+  margin-top:8px;
+  text-align:right;
+  color:#777a82;
+  font-size:12px;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:16px;
+}
+
+.voice-option{
+  position:relative;
+}
+
+.voice-option input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.voice-option label{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:72px;
+  padding:14px 18px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:rgba(255,255,255,.045);
+  cursor:pointer;
+  transition:.18s;
+}
+
+.voice-option label:hover{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,.075);
+}
+
+.voice-option input:checked+label{
+  border-color:var(--pink);
+  background:rgba(255,78,107,.12);
+  box-shadow:0 0 0 3px rgba(255,78,107,.08);
+}
+
+.flag{font-size:27px}
+
+.voice-name{
+  display:block;
+  font-weight:700;
+}
+
+.voice-desc{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.voice-status{
+  margin-top:12px;
+  color:#888b93;
+  text-align:center;
+  font-size:12px;
+}
+
+.generate{
+  width:100%;
+  margin-top:16px;
+  min-height:60px;
+  border:0;
+  border-radius:18px;
+  color:white;
+  background:linear-gradient(135deg,var(--pink),var(--red));
+  font-size:17px;
+  font-weight:750;
+  cursor:pointer;
+  transition:.18s;
+}
+
+.generate:hover{
+  transform:translateY(-2px) scale(1.005);
+  filter:brightness(1.06);
+}
+
+.generate:active{
+  transform:scale(.985);
+}
+
+.generate:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.secondary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+
+.secondary button{
+  min-height:50px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  color:var(--text);
+  background:rgba(255,255,255,.055);
+  cursor:pointer;
+  font-weight:650;
+  transition:.18s;
+}
+
+.secondary button:hover{
+  background:rgba(255,255,255,.09);
+  transform:translateY(-1px);
+}
+
+.status{
+  min-height:22px;
+  margin-top:14px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.info{
+  margin-top:20px;
+  padding:14px 16px;
+  border-radius:16px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.07);
+  color:#858891;
+  font-size:12px;
+  line-height:1.55;
+  text-align:center;
+}
+
+@media(max-width:600px){
+  .app{padding:22px;border-radius:24px}
+  .controls,.secondary{grid-template-columns:1fr}
+  textarea{min-height:220px}
+}
+</style>
+</head>
+
+<body>
+
+<main class="app">
+
+  <header class="header">
+    <h1>English Voice Generator</h1>
+    <p>Type English text and listen to it in British or American English.</p>
+  </header>
+
+  <textarea
+    id="text"
+    maxlength="5000"
+    placeholder="Type or paste your English text here..."
+  ></textarea>
+
+  <div class="counter">
+    <span id="count">0</span> / 5000
+  </div>
+
+  <section class="controls">
+
+    <div class="voice-option">
+      <input type="radio" id="uk" name="voice" value="uk" checked>
+      <label for="uk">
+        <span class="flag">🇬🇧</span>
+        <span>
+          <span class="voice-name">British English</span>
+          <span class="voice-desc" id="ukDesc">Searching for UK voice...</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="voice-option">
+      <input type="radio" id="us" name="voice" value="us">
+      <label for="us">
+        <span class="flag">🇺🇸</span>
+        <span>
+          <span class="voice-name">American English</span>
+          <span class="voice-desc" id="usDesc">Searching for US voice...</span>
+        </span>
+      </label>
+    </div>
+
+  </section>
+
+  <div class="voice-status" id="voiceStatus">
+    Loading available browser voices...
+  </div>
+
+  <button class="generate" id="generate">
+    ▶ Generate & Speak
+  </button>
+
+  <div class="secondary">
+    <button id="pause">Ⅱ Pause</button>
+    <button id="stop">■ Stop</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="info">
+    This version uses your browser's built-in Speech Synthesis API.
+    No Python, server, or installation is required.
+  </div>
+
+</main>
+
+<script>
+const text = document.getElementById("text");
+const count = document.getElementById("count");
+const generate = document.getElementById("generate");
+const pauseButton = document.getElementById("pause");
+const stopButton = document.getElementById("stop");
+const status = document.getElementById("status");
+
+const ukDesc = document.getElementById("ukDesc");
+const usDesc = document.getElementById("usDesc");
+const voiceStatus = document.getElementById("voiceStatus");
+
+let voices = [];
+let selectedVoices = {
+  uk: null,
+  us: null
+};
+
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+
+  if (!voices.length) {
+    voiceStatus.textContent =
+      "Waiting for the browser's voice list...";
+    return;
+  }
+
+  selectedVoices.uk = findBestVoice("uk");
+  selectedVoices.us = findBestVoice("us");
+
+  updateVoiceUI();
+}
+
+function findBestVoice(type) {
+  const englishVoices = voices.filter(v =>
+    /^en(-|_)/i.test(v.lang)
+  );
+
+  if (!englishVoices.length) return null;
+
+  const preferredLangs = type === "uk"
+    ? ["en-GB", "en_GB", "en-UK", "en_UK"]
+    : ["en-US", "en_US"];
+
+  // 1. Exact regional language match
+  for (const lang of preferredLangs) {
+    const match = englishVoices.find(v =>
+      v.lang.toLowerCase() === lang.toLowerCase()
+    );
+    if (match) return match;
+  }
+
+  // 2. Voice name clues
+  const keywords = type === "uk"
+    ? ["united kingdom", "british", "uk", "english (great britain)", "gb"]
+    : ["united states", "american", "us", "english (united states)"];
+
+  const nameMatch = englishVoices.find(v => {
+    const info = (v.name + " " + v.lang).toLowerCase();
+    return keywords.some(k => info.includes(k));
+  });
+
+  if (nameMatch) return nameMatch;
+
+  // Do not silently use the wrong regional accent.
+  return null;
+}
+
+function updateVoiceUI() {
+  if (selectedVoices.uk) {
+    ukDesc.textContent =
+      `${selectedVoices.uk.name} · ${selectedVoices.uk.lang}`;
+  } else {
+    ukDesc.textContent =
+      "No British English voice detected";
+  }
+
+  if (selectedVoices.us) {
+    usDesc.textContent =
+      `${selectedVoices.us.name} · ${selectedVoices.us.lang}`;
+  } else {
+    usDesc.textContent =
+      "No American English voice detected";
+  }
+
+  const available = [];
+  if (selectedVoices.uk) available.push("British");
+  if (selectedVoices.us) available.push("American");
+
+  if (available.length) {
+    voiceStatus.textContent =
+      `Available: ${available.join(" / ")} English`;
+  } else {
+    voiceStatus.textContent =
+      "No regional English voice was detected in this browser.";
+  }
+}
+
+text.addEventListener("input", () => {
+  count.textContent = text.value.length;
+});
+
+function speakText() {
+  const value = text.value.trim();
+
+  if (!value) {
+    status.textContent = "Please enter some English text first.";
+    text.focus();
+    return;
+  }
+
+  const selected = document.querySelector(
+    'input[name="voice"]:checked'
+  ).value;
+
+  const voice = selectedVoices[selected];
+
+  if (!voice) {
+    const label = selected === "uk"
+      ? "British English"
+      : "American English";
+
+    status.textContent =
+      `${label} voice is not available in your browser.`;
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(value);
+
+  utterance.voice = voice;
+  utterance.lang = voice.lang;
+
+  // Natural speaking speed
+  utterance.rate = 0.95;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  utterance.onstart = () => {
+    status.textContent =
+      `Speaking with ${voice.name}...`;
+  };
+
+  utterance.onend = () => {
+    status.textContent = "Finished.";
+  };
+
+  utterance.onerror = event => {
+    status.textContent =
+      `Speech error: ${event.error || "unknown error"}`;
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+generate.addEventListener("click", speakText);
+
+pauseButton.addEventListener("click", () => {
+  if (speechSynthesis.speaking) {
+    speechSynthesis.pause();
+    status.textContent = "Paused.";
+  }
+});
+
+stopButton.addEventListener("click", () => {
+  speechSynthesis.cancel();
+  status.textContent = "Stopped.";
+});
+
+if ("speechSynthesis" in window) {
+  loadVoices();
+
+  speechSynthesis.onvoiceschanged = loadVoices;
+} else {
+  generate.disabled = true;
+  voiceStatus.textContent =
+    "Speech Synthesis is not supported by this browser.";
+  status.textContent =
+    "Please use a modern browser such as Chrome or Edge.";
+}
+</script>
+
+</body>
+</html>
